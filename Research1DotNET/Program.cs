@@ -20,6 +20,7 @@ static string? ValidateProductRequest(CreateProductRequest request)
     return null;
 }
 var app = builder.Build();
+app.UseHttpsRedirection();
 
 app.UseExceptionHandler(errorApp =>
 {

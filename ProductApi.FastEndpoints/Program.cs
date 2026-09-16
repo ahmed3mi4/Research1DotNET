@@ -13,6 +13,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddFastEndpoints();
 
 var app = builder.Build();
+app.UseHttpsRedirection();
 app.UseFastEndpoints();
 app.MapGet("/", () => "Hello World!");
 
