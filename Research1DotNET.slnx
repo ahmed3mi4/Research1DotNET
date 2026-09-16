@@ -1,3 +1,4 @@
 <Solution>
-  <Project Path="Research1DotNET/Research1DotNET.csproj" />
+  <Project Path="ProductApi.FastEndpoints/ProductApi.FastEndpoints.csproj" />
+  <Project Path="Research1DotNET/ProductApi.MinimalApi.csproj" />
 </Solution>
