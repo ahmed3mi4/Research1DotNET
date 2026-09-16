@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ASP.NET Core Research Assignment</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #171a23;
+    --border: #262b3a;
+    --text: #e6e8ef;
+    --muted: #9aa3b8;
+    --accent: #7c9cff;
+    --accent-soft: #263156;
+    --code-bg: #10131c;
+    --good: #5fd6a5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', 'Cairo', system-ui, sans-serif;
+    background: linear-gradient(180deg, #0b0d13, #0f1117 400px);
+    color: var(--text);
+    line-height: 1.65;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
+  header.hero {
+    padding: 40px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  header.hero h1 {
+    font-size: 2rem;
+    margin: 0 0 8px;
+    background: linear-gradient(90deg, #7c9cff, #9be3c2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  header.hero p { color: var(--muted); margin: 4px 0; }
+  nav.toc {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  nav.toc h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { margin-bottom: 6px; }
+  nav.toc a { color: var(--text); text-decoration: none; }
+  nav.toc a:hover { color: var(--accent); }
+
+  section.part {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 36px;
+    margin-bottom: 32px;
+  }
+  section.part h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  section.part h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .sources {
+    font-size: .85rem;
+    color: var(--muted);
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 24px;
+  }
+  .sources a { color: var(--accent); word-break: break-all; }
+  h3.q {
+    font-size: 1.05rem;
+    color: var(--accent);
+    margin: 28px 0 8px;
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+  }
+  h3.q:first-of-type { margin-top: 0; }
+  p { margin: 8px 0 16px; }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: 'Cascadia Code', Consolas, monospace;
+    font-size: .9em;
+    color: var(--good);
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+  }
+  pre code { background: none; border: none; padding: 0; color: #c9e9d8; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; font-size: .92rem; }
+  th { background: var(--code-bg); color: var(--muted); }
+  ul, ol.list { margin: 8px 0 16px; padding-left: 22px; }
+  li { margin-bottom: 4px; }
+  .badge {
+    display: inline-block;
+    font-size: .75rem;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 20px;
+    padding: 2px 10px;
+    margin-left: 6px;
+  }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>ASP.NET Core Research Assignment</h1>
+  <p>Configuration, secrets, Kestrel, logging, API styles, EF Core, dependency injection, and HTTPS</p>
+  <p>Target: .NET 10 &middot; SQL Server &middot; Postman only (no Swagger)</p>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#part1">Part 1 &mdash; User Secrets</a></li>
+    <li><a href="#part2">Part 2 &mdash; Environment Variables</a></li>
+    <li><a href="#part3">Part 3 &mdash; appsettings &amp; Configuration Sources</a></li>
+    <li><a href="#part4">Part 4 &mdash; Kestrel Configuration</a></li>
+    <li><a href="#part5">Part 5 &mdash; Logging, ILogger &amp; Serilog</a></li>
+    <li><a href="#part8">Part 8 &mdash; HTTPS</a></li>
+  </ol>
+</nav>
+
+<!-- PART 1 -->
+<section class="part" id="part1">
+  <h2><span class="num">1</span> User Secrets</h2>
+  <div class="sources">Source: Safe storage of app secrets in development &mdash;
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-10.0" target="_blank">learn.microsoft.com/.../security/app-secrets</a>
+  </div>
+
+  <h3 class="q">What are User Secrets in ASP.NET Core?</h3>
+  <p>A development-time tool (the <code>dotnet user-secrets</code> CLI, backed by <code>Microsoft.Extensions.Configuration.UserSecrets</code>) that stores sensitive configuration values &mdash; such as API keys or connection strings &mdash; in a JSON file that lives outside the project folder, on the developer's own machine, instead of inside the source code.</p>
+
+  <h3 class="q">What problem do User Secrets solve?</h3>
+  <p>Without them, developers tend to put real credentials directly in <code>appsettings.json</code>. Since that file is part of the repository, the credentials get committed to source control and stay in the git history even after being deleted later. User Secrets remove this risk by keeping the values physically separate from the project tree.</p>
+
+  <h3 class="q">Where are User Secrets stored?</h3>
+  <table>
+    <tr><th>OS</th><th>Location</th></tr>
+    <tr><td>Windows</td><td><code>%APPDATA%\Microsoft\UserSecrets\&lt;id&gt;\secrets.json</code></td></tr>
+    <tr><td>Linux</td><td><code>~/.microsoft/usersecrets/&lt;id&gt;/secrets.json</code></td></tr>
+    <tr><td>macOS</td><td><code>~/.microsoft/usersecrets/&lt;id&gt;/secrets.json</code></td></tr>
+  </table>
+
+  <h3 class="q">Are User Secrets encrypted? Trusted production store?</h3>
+  <p>No &mdash; stored as plain, unencrypted JSON. Safety comes only from being outside the project directory. Not considered a trusted production secret store; production secrets should use a managed vault (e.g. Azure Key Vault) instead.</p>
+
+  <h3 class="q">How is a project connected to its store? (UserSecretsId)</h3>
+  <p>Running <code>dotnet user-secrets init</code> adds a <code>&lt;UserSecretsId&gt;</code> GUID to the <code>.csproj</code>:</p>
+  <pre><code>&lt;PropertyGroup&gt;
+  &lt;UserSecretsId&gt;a1b2c3d4-example-guid&lt;/UserSecretsId&gt;
+&lt;/PropertyGroup&gt;</code></pre>
+  <p>The GUID maps the project to its own secrets folder on disk, so each project on a machine keeps isolated secrets.</p>
+
+  <h3 class="q">Commands: init, set, list, remove, clear</h3>
+  <pre><code>dotnet user-secrets init
+dotnet user-secrets set "Key" "Value"
+dotnet user-secrets list
+dotnet user-secrets remove "Key"
+dotnet user-secrets clear</code></pre>
+  <p><em>Original example used in the implementation:</em></p>
+  <pre><code>dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=ProductDb;Trusted_Connection=True;"</code></pre>
+
+  <h3 class="q">How does the app read a secret through IConfiguration?</h3>
+  <p>For Web SDK projects, the User Secrets provider is added automatically in Development. No extra setup is needed:</p>
+  <pre><code>var connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];</code></pre>
+
+  <h3 class="q">When should User Secrets be used / not be used?</h3>
+  <table>
+    <tr><th>Use</th><th>Don't use</th></tr>
+    <tr><td>Local database credentials on a dev machine</td><td>Anything deployed with the app</td></tr>
+    <tr><td>API keys for local testing</td><td>Production credentials</td></tr>
+    <tr><td>Any short-lived local-only value</td><td>Secrets shared across a team</td></tr>
+  </table>
+
+  <h3 class="q">Why must User Secrets not contain production credentials?</h3>
+  <p>They are unencrypted, live only on one developer's machine (so they don't travel with deployment), and have no access-control mechanism. A compromised machine would expose them in plain text with no extra protection layer.</p>
+</section>
+
+<!-- PART 2 -->
+<section class="part" id="part2">
+  <h2><span class="num">2</span> Environment Variables</h2>
+  <div class="sources">Sources:
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-10.0" target="_blank">Configuration in ASP.NET Core</a> &middot;
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-10.0" target="_blank">Use multiple environments</a>
+  </div>
+
+  <h3 class="q">What is an environment variable?</h3>
+  <p>A key-value pair stored at the OS/process level, outside any application file, readable by a running process at startup or runtime.</p>
+
+  <h3 class="q">Who can create them?</h3>
+  <p>The OS itself, the terminal session, the IDE (launch profiles), a container/orchestrator (Docker, Kubernetes), or a cloud host (Azure App Service "Application Settings" are exposed as environment variables).</p>
+
+  <h3 class="q">How does ASP.NET Core load them into IConfiguration?</h3>
+  <p>The default host builder adds the Environment Variables configuration provider automatically; every visible environment variable becomes a configuration key-value pair.</p>
+
+  <h3 class="q">Hierarchical keys &mdash; the double underscore separator</h3>
+  <p>Colons (<code>:</code>) nest keys in <code>IConfiguration</code>, but colons are not valid in environment variable names on every shell (Bash in particular). ASP.NET Core uses <code>__</code> instead, converting it to <code>:</code> automatically when read.</p>
+  <pre><code>// Env var:  Logging__LogLevel__Default=Warning
+var level = builder.Configuration["Logging:LogLevel:Default"]; // "Warning"</code></pre>
+
+  <h3 class="q">Setting them temporarily per tool</h3>
+  <pre><code># PowerShell
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+
+:: Command Prompt
+set ASPNETCORE_ENVIRONMENT=Development
+
+# Bash
+export ASPNETCORE_ENVIRONMENT=Development</code></pre>
+  <ul>
+    <li><strong>Visual Studio:</strong> Launch Profiles / <code>launchSettings.json</code> (dev only, not published)</li>
+    <li><strong>Docker:</strong> <code>docker run -e ASPNETCORE_ENVIRONMENT=Production ...</code></li>
+    <li><strong>Azure App Service:</strong> "Application Settings" in the portal</li>
+  </ul>
+
+  <h3 class="q">What is ASPNETCORE_ENVIRONMENT?</h3>
+  <p>The variable ASP.NET Core reads to set <code>IWebHostEnvironment.EnvironmentName</code>. Conventional values: <code>Development</code>, <code>Staging</code>, <code>Production</code>. Defaults to <code>Production</code> if unset.</p>
+
+  <h3 class="q">Environment name vs. environment variable</h3>
+  <p><code>ASPNETCORE_ENVIRONMENT</code> <em>is</em> an environment variable, but "environment name" is the broader concept it controls. Other environment variables exist that have nothing to do with the environment name.</p>
+
+  <h3 class="q">Do environment variables automatically encrypt secrets?</h3>
+  <p>No, they are plain unencrypted text at the OS/process level.</p>
+
+  <h3 class="q">When are they more suitable than User Secrets?</h3>
+  <p>When a value must reach a <strong>deployed</strong> environment &mdash; User Secrets never leave the dev machine, while environment variables are the standard deploy-time injection mechanism across hosting platforms.</p>
+
+  <h3 class="q">Risks of sensitive values in environment variables</h3>
+  <p>If the host/container/process is compromised, environment variables can be read by anyone with process access (e.g. <code>/proc/&lt;pid&gt;/environ</code> on Linux). They can also leak via logs, crash dumps, or child-process inheritance. Managed vaults with access control and encryption at rest are safer for real production secrets.</p>
+</section>
+
+<!-- PART 3 -->
+<section class="part" id="part3">
+  <h2><span class="num">3</span> appsettings Files &amp; Configuration Sources</h2>
+  <div class="sources">Source: Configuration in ASP.NET Core &mdash;
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-10.0" target="_blank">learn.microsoft.com/.../fundamentals/configuration</a>
+  </div>
+
+  <h3 class="q">What is appsettings.json, and when is it loaded?</h3>
+  <p>The default JSON configuration file for an ASP.NET Core app. It is loaded early in the host-building process, before the app starts handling requests, and is added as the base configuration provider regardless of environment.</p>
+
+  <h3 class="q">appsettings.{Environment}.json</h3>
+  <p>An environment-specific overlay file loaded <em>after</em> the base <code>appsettings.json</code>, so its values override the base file's for matching keys. Examples: <code>appsettings.Development.json</code>, <code>appsettings.Staging.json</code>, <code>appsettings.Production.json</code>. Only the file matching the current <code>ASPNETCORE_ENVIRONMENT</code> is loaded, on top of the base file.</p>
+
+  <h3 class="q">Default configuration precedence</h3>
+  <p>Providers are added in order, and later providers override earlier ones for the same key. The default order (roughly):</p>
+  <ol class="list">
+    <li><code>appsettings.json</code></li>
+    <li><code>appsettings.{Environment}.json</code></li>
+    <li>User Secrets (Development only)</li>
+    <li>Environment variables</li>
+    <li>Command-line arguments</li>
+  </ol>
+
+  <h3 class="q">Which provider wins if the same key exists everywhere?</h3>
+  <p>The <strong>command-line argument</strong> wins, because it's added last in the default pipeline. Between the others named in the question, an environment variable overrides a User Secret, which overrides <code>appsettings.json</code>.</p>
+
+  <h3 class="q">What belongs safely in appsettings.json?</h3>
+  <p>Non-sensitive, stable settings: logging levels, feature flags, non-credentialed URLs, timeouts, pagination sizes, and similar application behavior settings.</p>
+
+  <h3 class="q">What must never be committed to appsettings.json?</h3>
+  <p>Passwords, API keys, credentialed connection strings, certificate passwords, or any value that grants access to a real system.</p>
+
+  <h3 class="q">Is a connection string always a secret?</h3>
+  <p>Not necessarily. A <strong>credentialed</strong> connection string (contains a username/password, e.g. SQL Authentication) is a secret and must never be committed. A <strong>non-credentialed</strong> connection string (e.g. using <code>Trusted_Connection=True</code> / Windows/Integrated Authentication, with no embedded password) carries less risk, though the server/database name itself can still be considered sensitive depending on context.</p>
+
+  <h3 class="q">User Secrets vs. environment variables/managed store &mdash; when each</h3>
+  <p>A developer working locally should use <strong>User Secrets</strong> for their own machine-only credentials. A <strong>deployment</strong> (staging/production) should use environment variables or a managed secret store, since User Secrets are not deployed with the app and are not designed for shared or production use.</p>
+
+  <h3 class="q">IConfiguration vs. the Options pattern</h3>
+  <p><code>IConfiguration</code> is a low-level, string-key/dictionary-style API for reading raw configuration values anywhere in the app. The <strong>Options pattern</strong> (<code>IOptions&lt;T&gt;</code>, <code>IOptionsSnapshot&lt;T&gt;</code>) binds a section of configuration to a strongly-typed class, injected via DI. <code>IConfiguration</code> is appropriate for quick, one-off reads (like a connection string at startup); the Options pattern is appropriate for larger, structured settings that a service depends on repeatedly, since it gives compile-time safety and testability.</p>
+</section>
+
+<!-- PART 4 -->
+<section class="part" id="part4">
+  <h2><span class="num">4</span> Kestrel Configuration</h2>
+  <div class="sources">Sources:
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-10.0" target="_blank">Kestrel web server in ASP.NET Core</a> &middot;
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-10.0" target="_blank">Configure endpoints for Kestrel</a>
+  </div>
+
+  <h3 class="q">What is Kestrel, and what role does it play?</h3>
+  <p>Kestrel is the cross-platform web server built into ASP.NET Core. It is the component that actually accepts TCP connections and turns raw bytes into HTTP requests the middleware pipeline can process. It ships with every ASP.NET Core project template by default.</p>
+
+  <h3 class="q">What is a Kestrel endpoint?</h3>
+  <p>The combination of an address (the network interface/port Kestrel listens on) and a protocol (HTTP/1.1, HTTP/2, HTTP/3, optionally secured with TLS/HTTPS).</p>
+
+  <h3 class="q">What properties can be configured per endpoint?</h3>
+  <p>Address (host/IP), port, protocol/scheme (http/https), and certificate (for HTTPS endpoints).</p>
+
+  <h3 class="q">Ways to configure Kestrel endpoints</h3>
+  <ul>
+    <li><strong>appsettings.json</strong> &mdash; a <code>Kestrel:Endpoints</code> JSON section</li>
+    <li><strong>Environment variables</strong> &mdash; e.g. <code>ASPNETCORE_URLS</code></li>
+    <li><strong>Command line</strong> &mdash; <code>--urls</code> argument</li>
+    <li><strong>C# code</strong> &mdash; <code>KestrelServerOptions</code> via <code>webBuilder.ConfigureKestrel(...)</code> or <code>options.Listen(...)</code></li>
+  </ul>
+  <p><em>Configuration used in the implementation:</em></p>
+  <pre><code>"Kestrel": {
+  "Endpoints": {
+    "Http":  { "Url": "http://localhost:5097" },
+    "Https": { "Url": "https://localhost:7097" }
+  }
+}</code></pre>
+
+  <h3 class="q">Why configure Kestrel in appsettings.json?</h3>
+  <p>It keeps endpoint configuration declarative, easy to read, and reloadable without recompiling, and it can be overridden per environment file just like any other setting.</p>
+
+  <h3 class="q">When is appsettings.json not the best place for final production endpoints?</h3>
+  <p>When the actual binding needs to be decided by the hosting environment itself at deploy time (a container orchestrator assigning a port, or a cloud host injecting <code>PORT</code>/<code>ASPNETCORE_URLS</code> dynamically) &mdash; in that case an environment variable is more appropriate than a hardcoded file value.</p>
+
+  <h3 class="q">localhost vs. 0.0.0.0 vs. a specific IP</h3>
+  <table>
+    <tr><th>Value</th><th>Meaning</th></tr>
+    <tr><td><code>localhost</code></td><td>Only accepts connections from the same machine (loopback)</td></tr>
+    <tr><td><code>0.0.0.0</code></td><td>Wildcard &mdash; binds to all available network interfaces (accessible from other machines on the network)</td></tr>
+    <tr><td>Specific IP</td><td>Binds only to that one network interface</td></tr>
+  </table>
+
+  <h3 class="q">Configuring separate HTTP and HTTPS endpoints</h3>
+  <p>Define two named entries under <code>Kestrel:Endpoints</code> in appsettings (or two <code>Listen</code> calls in code) &mdash; one with an <code>http://</code> URL and one with an <code>https://</code> URL, each on its own port, as shown above.</p>
+
+  <h3 class="q">HTTPS endpoint with no explicit certificate in Development?</h3>
+  <p>Kestrel automatically falls back to the local ASP.NET Core HTTPS development certificate (created and trusted via <code>dotnet dev-certs https --trust</code>). This certificate is not installed in non-development environments.</p>
+
+  <h3 class="q">Where should the certificate path/password be stored?</h3>
+  <p>The certificate <strong>path</strong> can live in configuration (appsettings or environment variable) since it's not sensitive by itself. The certificate <strong>password</strong> must be treated as a secret &mdash; User Secrets in development, environment variables or a managed vault in production &mdash; never committed to appsettings.json.</p>
+
+  <h3 class="q">Kestrel hosting with IIS / Nginx / a load balancer / an ingress</h3>
+  <p>In these setups the reverse proxy sits in front of Kestrel and can terminate TLS itself, forwarding plain HTTP to Kestrel internally (or forwarding HTTPS through, depending on configuration). Kestrel can still run standalone and be exposed directly to the internet, but production apps commonly place a reverse proxy in front for things like load balancing, additional security hardening, and centralized certificate management.</p>
+</section>
+
+<!-- PART 5 -->
+<section class="part" id="part5">
+  <h2><span class="num">5</span> Logging, ILogger &amp; Serilog</h2>
+  <div class="sources">Sources:
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-10.0" target="_blank">Logging in .NET Core and ASP.NET Core</a> &middot;
+    <a href="https://github.com/serilog/serilog/wiki/Getting-Started" target="_blank">Serilog &mdash; Getting Started (official wiki)</a> &middot;
+    <a href="https://github.com/serilog/serilog-aspnetcore" target="_blank">Serilog.AspNetCore (official repo)</a> &middot;
+    <a href="https://github.com/serilog/serilog-sinks-file" target="_blank">Serilog.Sinks.File (official repo)</a>
+  </div>
+
+  <h3 class="q">What is application logging and why is it required in production?</h3>
+  <p>Logging is the practice of recording events that happen while an application runs, so that behavior, errors, and performance can be understood after the fact. In production, logs are often the only way to diagnose an issue, since a developer usually cannot attach a debugger to a live system.</p>
+
+  <h3 class="q">.NET log levels, with two realistic situations each</h3>
+  <table>
+    <tr><th>Level</th><th>Situation 1</th><th>Situation 2</th></tr>
+    <tr><td>Trace</td><td>Logging every step inside a complex calculation while debugging locally</td><td>Recording raw request/response payloads during deep troubleshooting</td></tr>
+    <tr><td>Debug</td><td>Logging a computed cache key before a lookup</td><td>Logging which branch of an if/else a request took</td></tr>
+    <tr><td>Information</td><td>"Product created successfully, ProductId: 5"</td><td>Application startup completed</td></tr>
+    <tr><td>Warning</td><td>A requested product ID was not found (expected, recoverable)</td><td>A retried operation succeeded only on the second attempt</td></tr>
+    <tr><td>Error</td><td>A database call threw an exception</td><td>A required external API call failed</td></tr>
+    <tr><td>Critical</td><td>The application cannot connect to its database at startup</td><td>The application is about to crash due to an unrecoverable state</td></tr>
+    <tr><td>None</td><td colspan="2">Special value used to disable logging entirely for a category &mdash; not used to log an actual event</td></tr>
+  </table>
+
+  <h3 class="q">What does a configured minimum log level mean?</h3>
+  <p>Only events at or above the configured minimum level are actually recorded; anything below it is discarded before it reaches any provider/sink. For example, a minimum level of <code>Warning</code> means <code>Trace</code>/<code>Debug</code>/<code>Information</code> events are dropped.</p>
+
+  <h3 class="q">What is ILogger?</h3>
+  <p><code>ILogger</code> (and its generic form <code>ILogger&lt;T&gt;</code>) is the core logging abstraction in <code>Microsoft.Extensions.Logging</code>. <code>ILogger&lt;T&gt;</code> automatically tags every log entry with the category name <code>T</code> (typically the class it's injected into), which makes it easy to filter or search logs by the component that produced them.</p>
+
+  <h3 class="q">How is ILogger obtained through DI?</h3>
+  <p>It's injected via the constructor, exactly like any other service:</p>
+  <pre><code>public ProductService(AppDbContext context, ILogger&lt;ProductService&gt; logger)
+{
+    _context = context;
+    _logger = logger;
+}</code></pre>
+
+  <h3 class="q">What is a logging provider? Console &amp; Debug providers</h3>
+  <p>A logging provider is a plug-in that decides where a log entry actually ends up (console, debug window, file, cloud service, etc.) &mdash; <code>ILogger</code> itself is provider-agnostic. The built-in <strong>Console</strong> provider writes to the terminal/output window, useful during local development. The built-in <strong>Debug</strong> provider writes to the debugger's output window (e.g. Visual Studio's Debug pane) and only has an effect when a debugger is attached.</p>
+
+  <h3 class="q">Structured logging vs. string interpolation</h3>
+  <p>Structured logging uses a <strong>message template</strong> with named placeholders:</p>
+  <pre><code>_logger.LogInformation("Product created successfully. ProductId: {ProductId}", product.Id);</code></pre>
+  <p>This keeps <code>ProductId</code> as a separate, queryable, typed property in the underlying log event &mdash; a structured log sink can filter or search by it directly. String interpolation (<code>$"Product created. Id: {product.Id}"</code>) instead bakes the value into a single opaque text string, losing that structure and making later querying/filtering much harder.</p>
+
+  <h3 class="q">What must never be written to logs?</h3>
+  <p>Passwords, connection strings with credentials, full credit card numbers, authentication tokens, and other personally identifiable or secret information.</p>
+
+  <h3 class="q">What is Serilog, and how does it integrate with Microsoft.Extensions.Logging?</h3>
+  <p>Serilog is a third-party structured logging library for .NET. It integrates with the built-in <code>ILogger</code> abstraction through the <code>Serilog.AspNetCore</code> package: once wired up, code that already uses <code>ILogger</code> keeps working unchanged, while Serilog takes over as the actual logging backend, adding richer sinks, enrichers, and structured output formats.</p>
+
+  <h3 class="q">What is a Serilog sink?</h3>
+  <p>A sink is a destination Serilog writes log events to &mdash; console, a file, a database, or a log-aggregation service. Multiple sinks can be active at once, each receiving the same stream of events.</p>
+
+  <h3 class="q">Writing Serilog events to console and file</h3>
+  <p>Configured either in code or via an appsettings.json <code>Serilog</code> section read by <code>Serilog.Settings.Configuration</code>:</p>
+  <pre><code>"Serilog": {
+  "WriteTo": [
+    { "Name": "Console" },
+    { "Name": "File", "Args": { "path": "logs/log-.txt", "rollingInterval": "Day" } }
+  ]
+}</code></pre>
+
+  <h3 class="q">Daily rolling files, size limits, retained-file limits</h3>
+  <p>The File sink supports <code>rollingInterval: Day</code> to start a new file each day (e.g. <code>log20260915.txt</code>), a file size limit (default 1&nbsp;GB, configurable) after which no further events are written until the next roll point, and a retained-file-count limit to automatically delete the oldest files once a maximum number of files is reached &mdash; keeping disk usage bounded.</p>
+
+  <h3 class="q">Request logging in Serilog.AspNetCore</h3>
+  <p>Calling <code>app.UseSerilogRequestLogging();</code> in the middleware pipeline adds a single, structured log entry per HTTP request (method, path, status code, elapsed time), replacing the noisier multi-line default ASP.NET Core request logging with one compact structured event per request.</p>
+
+  <h3 class="q">When are local log files unsuitable?</h3>
+  <p>In containers, the filesystem is often ephemeral &mdash; logs written to a local file disappear when the container is destroyed or restarted. Across multiple application instances (scaled-out deployments, load-balanced containers), logs end up scattered across many machines with no single place to search them. In both cases, a centralized log sink (a log aggregation service reachable over the network) is more appropriate than writing to local disk.</p>
+</section>
+
+<!-- PART 8 -->
+<section class="part" id="part8">
+  <h2><span class="num">8</span> Applying HTTPS <span class="badge">theory + implemented</span></h2>
+  <div class="sources">Sources:
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/security/enforcing-ssl?view=aspnetcore-10.0" target="_blank">Enforce HTTPS in ASP.NET Core</a> &middot;
+    <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-10.0" target="_blank">Configure endpoints for Kestrel</a>
+  </div>
+
+  <h3 class="q">HTTP vs. HTTPS vs. TLS vs. an HTTPS certificate</h3>
+  <ul>
+    <li><strong>HTTP</strong> &mdash; the plain application protocol used to exchange requests/responses; data travels unencrypted.</li>
+    <li><strong>TLS</strong> &mdash; the protocol that actually performs the encryption/authentication (the modern successor to SSL).</li>
+    <li><strong>HTTPS</strong> &mdash; simply HTTP running over a TLS-secured connection.</li>
+    <li><strong>HTTPS certificate</strong> &mdash; the digital file proving the server's identity and carrying the key material TLS uses to encrypt the connection; without it, TLS/HTTPS cannot be established.</li>
+  </ul>
+
+  <h3 class="q">dotnet dev-certs commands</h3>
+  <pre><code>dotnet dev-certs https --check           # check if a valid cert exists
+dotnet dev-certs https --trust           # create (if needed) and trust it
+dotnet dev-certs https --clean           # remove existing dev certificates
+dotnet dev-certs https --check --trust   # check + trust in one step</code></pre>
+  <p><em>Used in the implementation:</em> <code>dotnet dev-certs https --check --trust</code> reported an existing but untrusted certificate; running <code>dotnet dev-certs https --trust</code> prompted a Windows confirmation dialog and completed with <code>"Successfully trusted the existing HTTPS certificate."</code></p>
+
+  <h3 class="q">Configuring local HTTP and HTTPS Kestrel endpoints</h3>
+  <p>Both projects define an explicit <code>Kestrel:Endpoints</code> section in <code>appsettings.json</code> with separate <code>Http</code> and <code>Https</code> entries on different ports, so the app listens on both protocols simultaneously (see Part 4 for the exact JSON).</p>
+
+  <h3 class="q">HTTPS redirection middleware &mdash; where it belongs</h3>
+  <p>Added early in the pipeline, immediately after <code>var app = builder.Build();</code> and before any endpoint mapping (<code>app.MapPost</code>, <code>app.UseFastEndpoints()</code>, etc.):</p>
+  <pre><code>var app = builder.Build();
+app.UseHttpsRedirection();
+// ... endpoints ...</code></pre>
+  <p>It must run before anything that could otherwise handle or respond to the plain-HTTP request, so the redirect actually happens before any business logic runs.</p>
+
+  <h3 class="q">Default HTTPS redirection status code</h3>
+  <p><code>UseHttpsRedirection()</code> uses <strong>307 (Temporary Redirect)</strong> by default. 307 is used instead of 301/302 specifically because it preserves the original HTTP method (POST stays POST, DELETE stays DELETE) across the redirect, whereas some clients silently downgrade 301/302 redirects to GET.</p>
+
+  <h3 class="q">Why a production API should listen only on HTTPS rather than rely on a redirect</h3>
+  <p>If the server accepts HTTP at all, there is a brief window where a request (and any data in it) is transmitted unencrypted before the redirect completes. For an API handling sensitive data, it's safer to not expose an HTTP listener at all in production, so no request path ever carries unencrypted traffic.</p>
+
+  <h3 class="q">What is HSTS? Do non-browser clients like Postman enforce it?</h3>
+  <p>HSTS (HTTP Strict Transport Security) is a response header that tells a <strong>browser</strong> to always use HTTPS for a given host from then on, even if the user types a plain <code>http://</code> URL, for the duration specified in the header. It is a browser-enforced policy. Non-browser HTTP clients such as Postman do not implement or enforce HSTS &mdash; they will still make a plain HTTP request if pointed at an <code>http://</code> URL and simply follow whatever redirect (or lack of one) the server returns.</p>
+
+  <h3 class="q">Direct TLS termination in Kestrel vs. termination at a reverse proxy</h3>
+  <p>With <strong>direct termination</strong>, Kestrel itself holds the certificate and decrypts TLS traffic, and the encrypted connection exists all the way to the application process. With <strong>reverse-proxy termination</strong> (IIS, Nginx, a load balancer, an ingress controller), the proxy holds the certificate and decrypts the incoming HTTPS traffic, then typically forwards plain HTTP to Kestrel over an internal, trusted network. The proxy approach centralizes certificate management and offloads TLS processing, at the cost of the internal hop between proxy and Kestrel being unencrypted (acceptable when that hop stays inside a trusted internal network).</p>
+
+  <h3 class="q">Supplying production certificate paths/passwords without committing secrets</h3>
+  <p>The certificate <strong>path</strong> can be set via configuration (appsettings or an environment variable), since the path itself isn't sensitive. The certificate <strong>password</strong> must come from a secret store appropriate to the environment &mdash; an environment variable injected by the deployment platform, or a managed secret store/vault &mdash; never hardcoded or committed to source control.</p>
+
+  <h3 class="q">Testing over HTTPS with Postman</h3>
+  <p>Both projects were tested successfully against their HTTPS endpoints (e.g. <code>https://localhost:7097/products</code>) after trusting the local development certificate. Requesting the HTTP endpoint (e.g. <code>http://localhost:7097</code> &mdash; the wrong port for the protocol) produced a <code>socket hang up</code> error, which was resolved by matching the correct HTTP port to the plain-HTTP URL and the HTTPS port to the <code>https://</code> URL.</p>
+
+  <h3 class="q">Solving an untrusted local development certificate</h3>
+  <p>The correct fix is <code>dotnet dev-certs https --trust</code>, which installs the existing local development certificate into the OS's trusted certificate store (prompting a confirmation dialog on Windows). This is the supported, documented approach &mdash; rather than disabling certificate validation in the client, which would hide real certificate problems instead of fixing them.</p>
+</section>
+
+<footer>ASP.NET Core Research Assignment &middot; Parts 6, 7 and 9 are implementation deliverables (Minimal API project, FastEndpoints project, Postman collection) tracked separately in the repository.</footer>
+
+</div>
+</body>
+</html>
